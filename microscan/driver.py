@@ -1,5 +1,10 @@
+from copy import deepcopy
+import re
 import serial
+import time
 import warnings
+
+from .config import MicroscanConfiguration
 
 
 class MicroscanDriver:
@@ -29,7 +34,7 @@ class MicroscanDriver:
         self.stopbits = stopbits
         self.databits = databits
 
-        self._device_config = None
+        self._config = None
 
     def __enter__(self):
         return self
@@ -77,6 +82,8 @@ class MicroscanDriver:
             dsrdtr=False,
         )
 
+        self._config = self.read_config()
+
     def close(self):
         """Close the serial port
 
@@ -101,6 +108,42 @@ class MicroscanDriver:
             bytes_ = bytes_.encode('ascii')
 
         self.port.write(bytes_)
+
+    def read_config(self, timeout=2.0):
+        """Read device configuration from device by sending the <K?> command
+
+        The `timeout` argument can be used to specify how long the function
+        will wait for a complete response from the device. The default value
+        (2 seconds) exceeds the typical response time of the device by
+        approximately a factor of two.
+        """
+        # Send query for all <K...> codes
+        self.write(b'<K?>')
+        # Each line contains multiple <K...> settings, no need to read line by
+        # line. Instead wait until the buffer stops growing, then read entire
+        # response at once.
+        buffer_size = 0
+        start_of_wait = time.time()
+        while True:
+            time.sleep(0.1)
+            prev_buffer_size = buffer_size
+            buffer_size = self.port.in_waiting
+            if prev_buffer_size == buffer_size:
+                break
+            if time.time() - start_of_wait > timeout:
+                break
+        read_content = self.port.read_all()
+        # find each setting string and create config from list of lines
+        config_lines = re.findall(b'<K[^>]*>', read_content)
+        cfg = MicroscanConfiguration.from_config_strings(config_lines)
+        # keep internal copy of device configuration up to date and give
+        # requester a copy
+        self._config = cfg
+        return deepcopy(cfg)
+
+    @property
+    def config(self):
+        return self._config
 
     def read_barcode(self):
         self.port.write(b'*')

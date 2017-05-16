@@ -2067,18 +2067,27 @@ REGISTRY = {cls.K_CODE: cls for cls in [
 
 
 class MicroscanConfiguration:
+    """Container for configuration settings for a barcode reader device
+
+    Calling the constructor will initialize a configuration object with all
+    available configuration settings, each set to the default value as
+    specified by the device documentation.
+
+    Use MicroscanConfiguration.from_config_strings() to create a configuration
+    object from data recorded from a device in response to the `<K?>` command
+    (or any other source of configuration data in string format).
+    """
+
+    _K_CODE_PATTERN = re.compile(rb'<(K\d+)(.*)>')
+
     def __init__(self):
-        self.lines = []
-
-    def to_config_string(self):
-        return b''.join([line.to_config_string() for line in self.lines])
-
-    @classmethod
-    def defaults(cls):
-        instance = cls()
-        instance.host_port_connection = HostPortConnection()
-
-        return instance
+        for k_code, serializer in REGISTRY.items():
+            # get property name by camelCase-to-under_score converting the
+            # serializer class name
+            serializer_name = serializer.__name__
+            prop_name = re.sub(
+                r'([a-z])([A-Z])', r'\1_\2', serializer_name).lower()
+            setattr(self, prop_name, serializer())
 
     @classmethod
     def from_config_strings(cls, list_of_strings):
@@ -2086,7 +2095,7 @@ class MicroscanConfiguration:
         instance = cls()
 
         for line in list_of_strings:
-            match = re.match(b'<(K\d+)(.*)>', line)
+            match = self._K_CODE_PATTERN.match(line)
 
             try:
                 k_code = match.group(1)
