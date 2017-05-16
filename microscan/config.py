@@ -17,14 +17,12 @@ ASCII_CHAR = b'.|\^[A-Z\[\\\]\^_]'
 
 
 class MicroscanConfigException(Exception):
-    """
-    Parent class for all configuration related exceptions
+    """Parent class for all configuration related exceptions
     """
 
 
 class InvalidConfigString(MicroscanConfigException):
-    """
-    Raised when decoding or encoding a character string with invalid format
+    """Raised when decoding or encoding a character string with invalid format
 
     For example, the following strings would raise this exception when passed
     to HostPortConnection.from_config_string():
@@ -35,8 +33,7 @@ class InvalidConfigString(MicroscanConfigException):
 
 
 class UnknownConfigString(MicroscanConfigException):
-    """
-    Raised when a config string is received for which no serializer is known
+    """Raised when a config string is received for which no serializer is known
 
     For example, the following strings would raise this exception when passed
     to MicroscanConfiguration.from_config_strings():
@@ -47,9 +44,7 @@ class UnknownConfigString(MicroscanConfigException):
 
 
 class KSetting:
-    """
-    Base class for all configuration settings
-    """
+    """Base class for all configuration settings"""
     def to_config_string(self, values):
         # class must have non-empty K_CODE attribute
         assert hasattr(self, 'K_CODE')
@@ -139,8 +134,7 @@ def _deserialize_baud_rate(configval):
 
 
 class HostPortConnection(KSetting):
-    """
-    See page 3-4 of Microscan MS3 manual for reference
+    """See page 3-4 of Microscan MS3 manual for reference
 
     Note that this section is referred to with the plural "Host Port
     Connections" in the manual, but this library uses the singular, for
@@ -203,8 +197,7 @@ class Protocol(Enum):
 
 
 class HostProtocol(KSetting):
-    """
-    See page 3-5 of Microscan MS3 manual for reference
+    """See page 3-5 of Microscan MS3 manual for reference
 
     The protocol options `Multidrop`, `UserDefined`, and `UserDefinedMultidrop`
     require additional settings besides the protocol parameter, which are
@@ -250,8 +243,7 @@ class RS422Status(Enum):
 
 
 class HostRS422Status(KSetting):
-    """
-    See page 3-10 of Microscan MS3 manual for reference
+    """See page 3-10 of Microscan MS3 manual for reference
 
     This setting contains a single binary flag for switching between RS-232
     and RS-422 mode.
@@ -314,8 +306,7 @@ class DaisyChainIdStatus(Enum):
 
 
 class RS232AuxiliaryPort(KSetting):
-    """
-    See page 3-11 of Microscan MS3 manual for reference
+    """See page 3-11 of Microscan MS3 manual for reference
     """
     K_CODE = b'K101'
     K_PATTERN = (
@@ -387,8 +378,7 @@ class PreambleStatus(Enum):
 
 
 class Preamble(KSetting):
-    """
-    See page 3-20 of Microscan MS3 manual for reference
+    """See page 3-20 of Microscan MS3 manual for reference
     """
     K_CODE = b'K141'
     K_PATTERN = b'^<%s,([0-1])?,(.{1,4})?>$' % K_CODE
@@ -433,8 +423,7 @@ class PostambleStatus(Enum):
 
 
 class Postamble(KSetting):
-    """
-    See page 3-20 of Microscan MS3 manual for reference
+    """See page 3-20 of Microscan MS3 manual for reference
     """
     K_CODE = b'K142'
     K_PATTERN = b'^<%s,([0-1])?,(.{1,4})?>$' % K_CODE
@@ -479,8 +468,7 @@ class LRCStatus(Enum):
 
 
 class LRC(KSetting):
-    """
-    See page 3-22 of Microscan MS3 manual for reference
+    """See page 3-22 of Microscan MS3 manual for reference
 
     LRC stands for "Longitudinal Redundancy Check".
 
@@ -528,8 +516,7 @@ class LRC(KSetting):
 
 
 class InterCharacterDelay(KSetting):
-    """
-    See page 3-22 of Microscan MS3 manual for reference
+    """See page 3-22 of Microscan MS3 manual for reference
     """
     K_CODE = b'K144'
     K_PATTERN = b'^<%s,([\d]{1,3})?>$' % K_CODE
@@ -573,8 +560,7 @@ class InterCharacterDelay(KSetting):
 
 
 class Multisymbol(KSetting):
-    """
-    See page 4-3 of Microscan MS3 manual for reference
+    """See page 4-3 of Microscan MS3 manual for reference
     """
     K_CODE = b'K222'
     K_PATTERN = b'^<%s,([1-5])?,(.)?>$' % K_CODE
@@ -632,8 +618,7 @@ class TriggerMode(Enum):
 
 
 class Trigger(KSetting):
-    """
-    See page 4-6 of Microscan MS3 manual for reference
+    """See page 4-6 of Microscan MS3 manual for reference
     """
     K_CODE = b'K200'
     K_PATTERN = b'^<%s,([0-5])?,([\d]*)?>$' % K_CODE
@@ -686,8 +671,7 @@ class ExternalTriggerState(Enum):
 
 
 class ExternalTrigger(KSetting):
-    """
-    See page 4-11 of Microscan MS3 manual for reference
+    """See page 4-11 of Microscan MS3 manual for reference
 
     Note that this setting is referred to as "External Trigger Status" in the
     user manual but called `ExternalTrigger` here to avoid the name colission
@@ -734,8 +718,7 @@ class ExternalTrigger(KSetting):
 
 
 class SerialTrigger(KSetting):
-    """
-    See page 4-12 of Microscan MS3 manual for reference
+    """See page 4-12 of Microscan MS3 manual for reference
     """
     K_CODE = b'K201'
     K_PATTERN = b'^<%s,(.|\^\])?>$' % K_CODE
@@ -778,8 +761,7 @@ class SerialTrigger(KSetting):
 
 
 class StartTriggerCharacter(KSetting):
-    """
-    See page 4-13 of Microscan MS3 manual for reference
+    """See page 4-13 of Microscan MS3 manual for reference
 
     The user manual groups the `StartTriggerSetting` and `StopTriggerSetting`
     under a single heading "Non-delimited Start and Stop Characters". This
@@ -827,8 +809,7 @@ class StartTriggerCharacter(KSetting):
 
 
 class StopTriggerCharacter(KSetting):
-    """
-    See page 4-13 of Microscan MS3 manual for reference
+    """See page 4-13 of Microscan MS3 manual for reference
 
     The user manual groups the `StartTriggerSetting` and `StopTriggerSetting`
     under a single heading "Non-delimited Start and Stop Characters". This
@@ -885,8 +866,7 @@ class EndReadCycleMode(Enum):
 
 
 class EndReadCycle(KSetting):
-    """
-    See page 4-14 of Microscan MS3 manual for reference
+    """See page 4-14 of Microscan MS3 manual for reference
 
     ready_cycle_timeout is measured in tens of milliseconds, e.g. 100 = 1sec
     """
@@ -943,8 +923,7 @@ class DecodesBeforeOutputMode(Enum):
 
 
 class DecodesBeforeOutput(KSetting):
-    """
-    See page 4-16 of Microscan MS3 manual for reference
+    """See page 4-16 of Microscan MS3 manual for reference
     """
     K_CODE = b'K221'
     K_PATTERN = b'^<%s,([\d]{1,3})?,([0-1])?>$' % K_CODE
@@ -996,8 +975,7 @@ class DecodesBeforeOutput(KSetting):
 
 
 class ScanSpeed(KSetting):
-    """
-    See page 4-17 of Microscan MS3 manual for reference
+    """See page 4-17 of Microscan MS3 manual for reference
 
     Note that the user manual groups the "Scan Speed" setting under the
     "Scanner Setup" heading. This library treats it as separate setting because
@@ -1051,8 +1029,7 @@ class AGCSamplingMode(Enum):
 
 
 class ScannerSetup(KSetting):
-    """
-    See page 4-17 of Microscan MS3 manual for reference
+    """See page 4-17 of Microscan MS3 manual for reference
 
     Note that the user manual groups the "Scan Speed" setting under the
     "Scanner Setup" heading. This library treats it as separate setting because
@@ -1126,8 +1103,7 @@ class SymbolDetectStatus(Enum):
 
 
 class SymbolDetect(KSetting):
-    """
-    See page 4-19 of Microscan MS3 manual for reference
+    """See page 4-19 of Microscan MS3 manual for reference
 
     Note that the user manual groups the "Symbol Detect Status" setting under
     the "Scanner Setup" heading. This library treats it as separate setting
@@ -1181,8 +1157,7 @@ class SymbolDetect(KSetting):
 
 
 class MaximumElement(KSetting):
-    """
-    See page 4-20 of Microscan MS3 manual for reference
+    """See page 4-20 of Microscan MS3 manual for reference
     """
     K_CODE = b'K502'
     K_PATTERN = b'^<%s,([\d]{1,5})?>$' % K_CODE
@@ -1231,8 +1206,7 @@ class ScanWidthEnhanceStatus(Enum):
 
 
 class ScanWidthEnhance(KSetting):
-    """
-    See page 4-20 of Microscan MS3 manual for reference
+    """See page 4-20 of Microscan MS3 manual for reference
 
     Note that the user manual groups the "Symbol Detect Status" setting under
     the "Scanner Setup" heading. This library treats it as separate setting
@@ -1296,8 +1270,7 @@ class LaserPower(Enum):
 
 
 class LaserSetup(KSetting):
-    """
-    See page 4-20 of Microscan MS3 manual for reference
+    """See page 4-20 of Microscan MS3 manual for reference
 
     Note that the "Laser Power" subsetting of the Laser Setup is mentioned
     twice in the MS3 user manual, once under "Laser Setup" and once under
@@ -1401,8 +1374,7 @@ class FullASCIISetStatus(Enum):
 
 
 class Code39(KSetting):
-    """
-    See page 5-3 of Microscan MS3 manual for reference
+    """See page 5-3 of Microscan MS3 manual for reference
     """
     K_CODE = b'K470'
     K_PATTERN = (
@@ -1491,8 +1463,7 @@ class Code128Status(Enum):
 
 
 class Code128(KSetting):
-    """
-    See page 5-6 of Microscan MS3 manual for reference
+    """See page 5-6 of Microscan MS3 manual for reference
     """
     K_CODE = b'K474'
 
@@ -1508,8 +1479,7 @@ class Interleaved2Of5Status(Enum):
 
 
 class Interleaved2Of5(KSetting):
-    """
-    See page 5-10 of Microscan MS3 manual for reference
+    """See page 5-10 of Microscan MS3 manual for reference
     """
     K_CODE = b'K472'
 
@@ -1525,8 +1495,7 @@ class CodabarStatus(Enum):
 
 
 class Codabar(KSetting):
-    """
-    See page 5-13 of Microscan MS3 manual for reference
+    """See page 5-13 of Microscan MS3 manual for reference
     """
     K_CODE = b'K471'
 
@@ -1563,8 +1532,7 @@ class UPC_EoutputAsUPC_A(Enum):
 
 
 class UPC_EAN(KSetting):
-    """
-    See page 5-16 of Microscan MS3 manual for reference
+    """See page 5-16 of Microscan MS3 manual for reference
     """
     K_CODE = b'K473'
     # K-codes for this setting can be tricky to read because the last five
@@ -1652,8 +1620,7 @@ class Code93Status(Enum):
 
 
 class Code93(KSetting):
-    """
-    See page 5-19 of Microscan MS3 manual for reference
+    """See page 5-19 of Microscan MS3 manual for reference
     """
     K_CODE = b'K475'
     K_PATTERN = (
@@ -1715,8 +1682,7 @@ class PharmacodeStatus(Enum):
 
 
 class Pharmacode(KSetting):
-    """
-    See page 5-19 of Microscan MS3 manual for reference
+    """See page 5-19 of Microscan MS3 manual for reference
     """
     K_CODE = b'K475'
 
@@ -1737,8 +1703,7 @@ class SymbologyIDStatus(Enum):
 
 
 class NarrowMarginsAndSymbologyID(KSetting):
-    """
-    See page 5-22 of Microscan MS3 manual for reference
+    """See page 5-22 of Microscan MS3 manual for reference
     """
     K_CODE = b'K450'
     K_PATTERN = b'^<%s,([0-1])?,([0-1])?>$' % K_CODE
@@ -1792,8 +1757,7 @@ class Color(Enum):
 
 
 class BackgroundColor(KSetting):
-    """
-    See page 5-24 of Microscan MS3 manual for reference
+    """See page 5-24 of Microscan MS3 manual for reference
     """
     K_CODE = b'K451'
     K_PATTERN = b'^<%s,([0-1])?>$' % K_CODE
@@ -1841,8 +1805,7 @@ class SymbolRatio(Enum):
 
 
 class SymbolRatioMode(KSetting):
-    """
-    See page 5-25 of Microscan MS3 manual for reference
+    """See page 5-25 of Microscan MS3 manual for reference
     """
     K_CODE = b'K452'
     K_PATTERN = b'^<%s,([0-2])?,([0-2])?,([0-2])?,([0-2])?>$' % K_CODE
@@ -1897,7 +1860,7 @@ class SymbolRatioMode(KSetting):
         )
 
 
-"""A mapping of K-code to serializer class for this configuration line.
+"""A mapping of K-code to property name and serializer class
 
 For example, maps the K-code 'K100' to the HostPortConnection class which can
 be used to serialize or deserialize the device's host port serial protocol
