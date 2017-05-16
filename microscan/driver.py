@@ -147,10 +147,10 @@ class MicroscanDriver:
         return self._config
 
     def read_barcode(self):
+        self.port.flush()
         self.port.write(b'*')
-        buffer_contents = self.port.read_all()
-        last_line = buffer_contents.strip().split(b'\r\n')[-1]
-        return last_line.decode('ascii', errors='ignore')
+        line = self.port.readline()
+        return last_line.strip().decode('ascii', errors='ignore')
 
 
 class MS2Driver(MicroscanDriver):
