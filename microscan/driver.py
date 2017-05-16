@@ -37,6 +37,7 @@ class MicroscanDriver:
         self._config = None
 
     def __enter__(self):
+        self.connect()
         return self
 
     def __exit__(self, *args):
