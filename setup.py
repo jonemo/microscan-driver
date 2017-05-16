@@ -20,7 +20,7 @@ setup(
         ],
     },
 
-    description='Python driver from Microscan barcode scanners',
+    description='Python driver from Microscan barcode readers',
     long_description=long_description,
     url='https://github.com/jonemo/microscan-driver',
     author='Jonas Neubert',

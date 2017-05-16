@@ -1,2 +1,2 @@
 # microscan-driver
-Python driver for Microscan barcode scanners
+Python driver for Microscan barcode readers
