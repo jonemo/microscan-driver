@@ -1,5 +1,9 @@
 from enum import Enum
+import logging
 import re
+
+
+logger = logging.getLogger(__name__)
 
 
 """
@@ -1545,8 +1549,8 @@ class Code128(KSetting):
             symbol_length=10,
             ean128_status=EAN128Status.Disabled,
             output_format=Code128OutputFormat.Standard,
-            application_record_separator_status=\
-                ApplicationRecordSeparatorStatus.Disabled,
+            application_record_separator_status=(
+                ApplicationRecordSeparatorStatus.Disabled),
             application_record_separator_character=b',',
             application_record_brackets=ApplicationRecordBrackets.Disabled,
             application_record_padding=ApplicationRecordPadding.Disabled):
@@ -1565,7 +1569,8 @@ class Code128(KSetting):
     def is_valid(self):
         return all([
             isinstance(self.status, Code128Status),
-            isinstance(self.fixed_symbol_length_status, FixedSymbolLengthStatus),
+            isinstance(
+                self.fixed_symbol_length_status, FixedSymbolLengthStatus),
             isinstance(self.symbol_length, int),
             self.symbol_length >= 1,
             self.symbol_length <= 64,
@@ -1574,7 +1579,7 @@ class Code128(KSetting):
             isinstance(
                 self.application_record_brackets, ApplicationRecordBrackets),
             isinstance(
-                self.application_record_padding, ApplicationRecordPadding)
+                self.application_record_padding, ApplicationRecordPadding),
         ])
 
     def to_config_string(self):
@@ -1802,7 +1807,8 @@ class Code93(KSetting):
     def is_valid(self):
         return all([
             isinstance(self.status, Code93Status),
-            isinstance(self.fixed_symbol_length_status, FixedSymbolLengthStatus),
+            isinstance(
+                self.fixed_symbol_length_status, FixedSymbolLengthStatus),
             isinstance(self.fixed_symbol_length, int),
             self.fixed_symbol_length >= 1,
             self.fixed_symbol_length <= 64,
@@ -2054,7 +2060,7 @@ REGISTRY = {cls.K_CODE: cls for cls in [
     ScanWidthEnhance,
     LaserSetup,
     Code39,
-    # Code128,
+    Code128,
     # Interleaved2Of5,
     # Codabar,
     UPC_EAN,
@@ -2078,7 +2084,7 @@ class MicroscanConfiguration:
     (or any other source of configuration data in string format).
     """
 
-    _K_CODE_PATTERN = re.compile(rb'<(K\d+)(.*)>')
+    _K_CODE_PATTERN = re.compile(b'<(K\d+)(.*)>')
 
     def __init__(self):
         for k_code, serializer in REGISTRY.items():
@@ -2095,7 +2101,7 @@ class MicroscanConfiguration:
         instance = cls()
 
         for line in list_of_strings:
-            match = self._K_CODE_PATTERN.match(line)
+            match = cls._K_CODE_PATTERN.match(line)
 
             try:
                 k_code = match.group(1)
