@@ -45,12 +45,19 @@ Currently, this library aims to implement all features documented in the MS3devi
 
 ### Specific Settings
 
-The configuration settings listed below are not currently implemented in this library.
+The configuration settings listed below are not currently implemented in this library:
 
-* For the Host Port Protocol setting, the values "Multidrop", "User Defined", and "User Defined Multidrop" are not supported
+* For the Host Port Protocol setting, the values "Multidrop", "User Defined", and "User Defined Multidrop"
 * Matchcode (all functionality described in chapter 7 of the user manual)
+* Configuration settings for the Codabar, Interleaved2Of5, and Pharmacode symbologies
 
-A workaround for applications that require these features, is to send the corresponding configuration strings directly using the `MicroscanDriver.send_string()` method.
+A workaround for applications that require these features, is to send the corresponding configuration strings directly using the `MicroscanDriver.write()` method, for example, to only output symbol data on match, but as soon as data is available:
+
+```
+driver = MicroscanDriver('COM3')
+driver.write(b'<K705,1,0>')
+driver.close()
+```
 
 ### General Functionality
 
