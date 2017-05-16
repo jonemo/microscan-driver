@@ -537,8 +537,45 @@ class TestCode39(TestCase):
 
 
 class TestCode128(TestCase):
-    # TODO
-    pass
+    def test_deserialization_1(self):
+        str_ = b'<K474,1,0,10,1,0,0,,,0,0>'
+        obj = config.Code128.from_config_string(str_)
+        self.assertEqual(obj.status, config.Code128Status.Enabled)
+        self.assertEqual(
+            obj.fixed_symbol_length_status,
+            config.FixedSymbolLengthStatus.Disabled)
+        self.assertEqual(obj.symbol_length, 10)
+        self.assertEqual(obj.ean128_status, config.EAN128Status.Enabled)
+        self.assertEqual(
+            obj.output_format, config.Code128OutputFormat.Standard)
+        self.assertEqual(
+            obj.application_record_separator_status,
+            config.ApplicationRecordSeparatorStatus.Disabled)
+        self.assertEqual(obj.application_record_separator_character, b',')
+        self.assertEqual(
+            obj.application_record_brackets,
+            config.ApplicationRecordBrackets.Disabled)
+        self.assertEqual(
+            obj.application_record_padding,
+            config.ApplicationRecordPadding.Disabled)
+
+    def test_serialization_1(self):
+        obj = config.Code128(
+            status=config.Code128Status.Enabled,
+            fixed_symbol_length_status=config.FixedSymbolLengthStatus.Enabled,
+            symbol_length=42,
+            ean128_status=config.EAN128Status.Disabled,
+            output_format=config.Code128OutputFormat.Standard,
+            application_record_separator_status=(
+                config.ApplicationRecordSeparatorStatus.Disabled),
+            application_record_separator_character=b'&',
+            application_record_brackets=(
+                config.ApplicationRecordBrackets.Enabled),
+            application_record_padding=(
+                config.ApplicationRecordPadding.Enabled),
+        )
+        str_ = obj.to_config_string()
+        self.assertEqual(str_, b'<K474,1,1,42,0,0,0,&,1,1>')
 
 
 class TestInterleaved2Of5(TestCase):

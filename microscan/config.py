@@ -1,9 +1,5 @@
 from enum import Enum
-import logging
 import re
-
-
-logger = logging.getLogger(__name__)
 
 
 """
@@ -1428,7 +1424,7 @@ class Code39(KSetting):
         """Create Code39 object from string returned by the device
 
         The str_ argument should be the device response to0the <K473?>
-            command, for example '<K470,1,0,0,1,1,32,0>'
+            command, for example '<K473,1,0,0,1,1,32,0>'
         """
         match = re.match(cls.K_PATTERN, str_)
         try:
@@ -1458,16 +1454,184 @@ class Code39(KSetting):
 
 
 class Code128Status(Enum):
+    """Enables/disables the Code 128 symbologies
+
+    See page 5-6 of the Microscan MS3 manual for reference
+    """
+    Disabled = b'0'
+    Enabled = b'1'
+
+
+class EAN128Status(Enum):
+    """Enables/disables/requires the EAN-128 subset of the Code 128 symbology
+
+    EAN-128 is commonly used in shipping applications, defining a wide variaty
+    of application specific extensions while using a subset of the possible
+    symbols of the Code 128 symbology.
+
+    See page 5-7 of the Microscan MS3 manual for reference
+    """
+    Disabled = b'0'
+    Enabled = b'1'
+    Required = b'2'
+
+
+class Code128OutputFormat(Enum):
+    """When EAN-128 is enabled, this setting controls the format of the output
+
+    This setting only takes effect when EAN128Status is set to Enabled or
+    Required.
+
+    When this setting is set to ApplicationRecord, the following settings may
+    be used for further configuration of the output format:
+    - ApplicationRecordSeparatorStatus
+    - ApplicationRecordSeparatorCharacter
+    - ApplicationRecordBrackets
+    - ApplicationRecordPadding
+
+    See page 5-7 of the Microscan MS3 manual for reference
+    """
+    Standard = b'0'
+    ApplicationRecord = b'1'
+
+
+class ApplicationRecordSeparatorStatus(Enum):
+    """Used in conjunction with the Code128OutputFormat setting
+
+    See page 5-8 of the Microscan MS3 manual for reference
+    """
+    Disabled = b'0'
+    Enabled = b'1'
+
+
+class ApplicationRecordBrackets(Enum):
+    """Used in conjunction with the Code128OutputFormat setting
+
+    See page 5-8 of the Microscan MS3 manual for reference
+    """
+    Disabled = b'0'
+    Enabled = b'1'
+
+
+class ApplicationRecordPadding(Enum):
+    """Used in conjunction with the Code128OutputFormat setting
+
+    See page 5-8 of the Microscan MS3 manual for reference
+    """
     Disabled = b'0'
     Enabled = b'1'
 
 
 class Code128(KSetting):
     """See page 5-6 of Microscan MS3 manual for reference
+
+    Code128 is a family of high density symbologies that can encode all ASCII
+    characters. The three variants (Code 128-A to C) differ in the table of
+    characters, trading off character set with density. 128-B allows for all
+    127 ASCII characters while, while 128-C is numeric only but encodes two
+    digits in the same space as 128-B needs for one character.
+
+    Wikipedia: https://en.wikipedia.org/wiki/Code_128
     """
     K_CODE = b'K474'
+    K_PATTERN = (
+        b'^<%s,([0-1])?,([0-1])?,([\d]{1,2})?,([0-2])?,([0-1])?,([0-1])?,'
+        b'(%s)?,([0-1])?,([0-1])?>$' % (K_CODE, ASCII_CHAR))
 
-    # TODO
+    def __init__(
+            self,
+            status=Code128Status.Disabled,
+            fixed_symbol_length_status=FixedSymbolLengthStatus.Disabled,
+            symbol_length=10,
+            ean128_status=EAN128Status.Disabled,
+            output_format=Code128OutputFormat.Standard,
+            application_record_separator_status=\
+                ApplicationRecordSeparatorStatus.Disabled,
+            application_record_separator_character=b',',
+            application_record_brackets=ApplicationRecordBrackets.Disabled,
+            application_record_padding=ApplicationRecordPadding.Disabled):
+        self.status = status
+        self.fixed_symbol_length_status = fixed_symbol_length_status
+        self.symbol_length = symbol_length
+        self.ean128_status = ean128_status
+        self.output_format = output_format
+        self.application_record_separator_status = (
+            application_record_separator_status)
+        self.application_record_separator_character = (
+            application_record_separator_character)
+        self.application_record_brackets = application_record_brackets
+        self.application_record_padding = application_record_padding
+
+    def is_valid(self):
+        return all([
+            isinstance(self.status, Code128Status),
+            isinstance(self.fixed_symbol_length_status, FixedSymbolLengthStatus),
+            isinstance(self.symbol_length, int),
+            self.symbol_length >= 1,
+            self.symbol_length <= 64,
+            isinstance(self.ean128_status, EAN128Status),
+            isinstance(self.output_format, Code128OutputFormat),
+            isinstance(
+                self.application_record_brackets, ApplicationRecordBrackets),
+            isinstance(
+                self.application_record_padding, ApplicationRecordPadding)
+        ])
+
+    def to_config_string(self):
+        return super().to_config_string([
+            self.status.value,
+            self.fixed_symbol_length_status.value,
+            self.symbol_length,
+            self.ean128_status.value,
+            self.output_format.value,
+            self.application_record_separator_status.value,
+            self.application_record_separator_character,
+            self.application_record_brackets.value,
+            self.application_record_padding.value,
+        ])
+
+    @classmethod
+    def from_config_string(cls, str_):
+        """Create Code128 object from string returned by the device
+
+        The str_ argument should be the device response to0the <K474?>
+            command, for example '<K474,1,0,10,1,0,0,,,0,0>'
+        """
+        match = re.match(cls.K_PATTERN, str_)
+        try:
+            (
+                status,
+                fixed_symbol_length_status,
+                symbol_length,
+                ean128_status,
+                output_format,
+                application_record_separator_status,
+                application_record_separator_character,
+                application_record_brackets,
+                application_record_padding
+            ) = match.groups()
+        except (ValueError, AttributeError):
+            raise InvalidConfigString(
+                'Cannot decode config string %s for K-code %s' %
+                (str_, cls.K_CODE))
+
+        return cls(
+            status=Code128Status(status),
+            fixed_symbol_length_status=FixedSymbolLengthStatus(
+                fixed_symbol_length_status),
+            symbol_length=int(symbol_length),
+            ean128_status=EAN128Status(ean128_status),
+            output_format=Code128OutputFormat(output_format),
+            application_record_separator_status=(
+                ApplicationRecordSeparatorStatus(
+                    application_record_separator_status)),
+            application_record_separator_character=(
+                application_record_separator_character),
+            application_record_brackets=ApplicationRecordBrackets(
+                application_record_brackets),
+            application_record_padding=ApplicationRecordPadding(
+                application_record_padding)
+        )
 
 
 # === Interleaved 2 of 5 setting and corresponding enums ===
