@@ -2087,18 +2087,35 @@ class MicroscanConfiguration:
     _K_CODE_PATTERN = re.compile(b'<(K\d+)(.*)>')
 
     def __init__(self):
+        self.load_defaults()
+
+    def load_defaults(self):
+        """Loads documented default settings into the configuration object
+
+        If called after otherwise setting configuration settings, these will be
+        overwritten with defaults by this method.
+        """
         for k_code, serializer in REGISTRY.items():
-            # get property name by camelCase-to-under_score converting the
-            # serializer class name
-            serializer_name = serializer.__name__
-            prop_name = re.sub(
-                r'([a-z])([A-Z])', r'\1_\2', serializer_name).lower()
+            prop_name = self._clsname_to_propname(serializer.__name__)
             setattr(self, prop_name, serializer())
 
     @classmethod
-    def from_config_strings(cls, list_of_strings):
+    def from_config_strings(cls, list_of_strings, defaults=False):
+        """Create configuration object from a list of configuration strings
+
+        Expects a list of byte strings, each representing a configuration
+        setting as <K...> string.
+
+        Set the `defaults` argument `True` to additionally load default
+        settings for all available settings. This is useful, when your list of
+        configuration strings does not cover the full list of available
+        settings.
+        """
         # initialize instance with defaults
         instance = cls()
+
+        if defaults:
+            instance.load_defaults()
 
         for line in list_of_strings:
             match = cls._K_CODE_PATTERN.match(line)
@@ -2111,9 +2128,33 @@ class MicroscanConfiguration:
 
             try:
                 serializer = REGISTRY[k_code]
-                instance.lines.append(serializer.from_config_string(line))
+                prop_name = instance._clsname_to_propname(serializer.__name__)
+                setattr(
+                    instance, prop_name, serializer.from_config_string(line))
             except KeyError:
                 logger.info(
                     'Cannot find serializer class for K-code %s$' % k_code)
 
         return instance
+
+    def _clsname_to_propname(self, clsname):
+        """camelCase-to-under_score string conversion
+
+        Used to convert serializer class names to property names when
+        dynamically setting or getting configuration properties.
+        """
+        return re.sub(r'([a-z])([A-Z])', r'\1_\2', clsname).lower()
+
+    def to_config_string(self, separator=b''):
+        """Serialized the object into a single string for sending to device
+
+        Use the `separator` argument to specify any bytes that should appear
+        between individual configuration settings. To output one setting per
+        line, for example, specify `separator=b'\\n'`
+        """
+        props = [
+            getattr(self, self._clsname_to_propname(prop.__name__), None)
+            for prop in REGISTRY.values()
+        ]
+        return separator.join([
+            prop.to_config_string() for prop in props if prop])
