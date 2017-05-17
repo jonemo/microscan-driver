@@ -256,7 +256,7 @@ class TestSerialTrigger(TestCase):
         self.assertEqual(obj.serial_trigger_character, b'=')
 
     def test_serialization_1(self):
-        obj = config.SerialTrigger(serial_trigger_character='t')
+        obj = config.SerialTrigger(serial_trigger_character=b't')
         str_ = obj.to_config_string()
         self.assertEqual(str_, b'<K201,t>')
 

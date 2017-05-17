@@ -728,7 +728,7 @@ class SerialTrigger(KSetting):
 
     def is_valid(self):
         return all([
-            isinstance(self.serial_trigger_character, str),
+            isinstance(self.serial_trigger_character, bytes),
             len(self.serial_trigger_character) == 1,
         ])
 
