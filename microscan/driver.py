@@ -129,7 +129,7 @@ class MicroscanDriver:
             time.sleep(0.1)
             prev_buffer_size = buffer_size
             buffer_size = self.port.in_waiting
-            if prev_buffer_size == buffer_size:
+            if buffer_size > 0 and prev_buffer_size == buffer_size:
                 break
             if time.time() - start_of_wait > timeout:
                 break
