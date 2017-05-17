@@ -26,9 +26,9 @@ class MicroscanDriver:
     ```
     """
     def __init__(
-            self, port, baudrate=None, parity=None, stopbits=None,
+            self, portname, baudrate=None, parity=None, stopbits=None,
             databits=None):
-        self.port = port
+        self.portname = portname
         self.baudrate = baudrate
         self.parity = parity
         self.stopbits = stopbits
@@ -72,7 +72,7 @@ class MicroscanDriver:
         stopbits = stopbits or self.stopbits or serial.STOPBITS_ONE
 
         self.port = serial.Serial(
-            self.port,
+            self.portname,
             baudrate=baudrate,
             parity=parity,
             bytesize=bytesize,
@@ -150,7 +150,7 @@ class MicroscanDriver:
         self.port.flush()
         self.port.write(b'*')
         line = self.port.readline()
-        return last_line.strip().decode('ascii', errors='ignore')
+        return line.strip().decode('ascii', errors='ignore')
 
 
 class MS2Driver(MicroscanDriver):
