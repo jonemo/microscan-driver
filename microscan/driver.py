@@ -142,6 +142,21 @@ class MicroscanDriver:
         self._config = cfg
         return deepcopy(cfg)
 
+    def write_config(self):
+        """Write device config to device by sending a series of <K...> commands
+        """
+        if not isinstance(self._config, MicroscanConfiguration):
+            raise TypeError(
+                'Expected MicroscanConfiguration but found %s' %
+                type(self._config).__name__)
+
+        # stop scanning, see page A-10 of documentation
+        self.write(b'<I>')
+        # write concatenated config string
+        self.write(self._config.to_config_string())
+        # resume scanning, see page A-10 of documentation
+        self.write(b'<H>')
+
     @property
     def config(self):
         return self._config
