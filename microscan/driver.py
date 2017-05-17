@@ -5,6 +5,7 @@ import time
 import warnings
 
 from .config import MicroscanConfiguration
+from .config import TriggerMode
 
 
 class MicroscanDriver:
@@ -162,9 +163,43 @@ class MicroscanDriver:
         return self._config
 
     def read_barcode(self):
-        self.port.flush()
-        self.port.write(b'*')
-        line = self.port.readline()
+        """Reads a single barcode symbol from the device
+
+        If serial trigger is enabled in the current configuration, the
+        appropriate trigger is symbol ("Start Trigger Character") or trigger
+        message ("Serial Trigger Character") is sent and the next barcode
+        returned, with the function blocking until then or the serial read
+        timeout.
+
+        If serial trigger is disabled, the most recently read barcode is
+        returned if any data is in the serial in buffer, otherwise the method
+        will block and wait for the next barcode until the serial read timeout.
+        """
+        if self._config.trigger.trigger_mode == TriggerMode.SerialData:
+            if self._config.start_trigger_character.start_trigger_character:
+                as_hex = self._config.start_trigger_character.start_trigger_character  # nopep8
+                trigger = bytes([int(as_hex, 16)])
+            else:
+                trigger = b'<%s>' % self._config.serial_trigger.serial_trigger_character  # nopep8
+            # discard any symbols read before trigger is sent
+            self.port.flush()
+            self.port.write(trigger)
+            line = self.port.readline()
+        else:
+            # when not triggering with a serial command, assume that one or
+            # more barcodes are already in the buffer
+            buffer_contents = self.port.read_all()
+            # TODO: Use postamble setting instead of default '\r\n'
+            lines = buffer_contents.split(b'\r\n')
+            # the buffer was [bc1][postamble][bc2][postample]..., therefore the
+            # last entry in lines should be empty, the second to last is the
+            # barcode
+            if len(lines) > 2 and lines[-1] == b'':
+                line = lines[-2]
+            # if there wasn't a line, wait until timeout
+            if not line:
+                line = self.port.readline()
+
         return line.strip().decode('ascii', errors='ignore')
 
 
