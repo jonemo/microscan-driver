@@ -119,6 +119,11 @@ class MicroscanDriver:
         (2 seconds) exceeds the typical response time of the device by
         approximately a factor of two.
         """
+        # stop scanning to avoid having symbols mixed with configuration data,
+        # see page A-10 of documentation
+        self.write(b'<I>')
+        self.port.flush()
+
         # Send query for all <K...> codes
         self.write(b'<K?>')
         # Each line contains multiple <K...> settings, no need to read line by
@@ -135,6 +140,10 @@ class MicroscanDriver:
             if time.time() - start_of_wait > timeout:
                 break
         read_content = self.port.read_all()
+
+        # resume scanning, see page A-10 of documentation
+        self.write(b'<H>')
+
         # find each setting string and create config from list of lines
         config_lines = re.findall(b'<K[^>]*>', read_content)
         cfg = MicroscanConfiguration.from_config_strings(config_lines)
