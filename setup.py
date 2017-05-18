@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='microscan_driver',
+    name='microscan',
     version='0.0.1',
     packages=find_packages(exclude=['docs', 'tests']),
     install_requires=['pyserial'],

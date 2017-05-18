@@ -206,7 +206,7 @@ class MicroscanDriver:
             if len(lines) > 2 and lines[-1] == b'':
                 line = lines[-2]
             # if there wasn't a line, wait until timeout
-            if not line:
+            else:
                 line = self.port.readline()
 
         return line.strip().decode('ascii', errors='ignore')
