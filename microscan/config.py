@@ -1529,13 +1529,25 @@ class ApplicationRecordPadding(Enum):
 class Code128(KSetting):
     """See page 5-6 of Microscan MS3 manual for reference
 
-    Code128 is a family of high density symbologies that can encode all ASCII
-    characters. The three variants (Code 128-A to C) differ in the table of
-    characters, trading off character set with density. 128-B allows for all
-    127 ASCII characters while, while 128-C is numeric only but encodes two
-    digits in the same space as 128-B needs for one character.
+    Code128 is a family of high density symbologies that can encode
+    all ASCII characters. The three variants (Code 128-A to C) differ
+    in the table of characters, trading off character set with
+    density. 128-B allows for all 127 ASCII characters while, while
+    128-C is numeric only but encodes two digits in the same space as
+    128-B needs for one character.
 
     Wikipedia: https://en.wikipedia.org/wiki/Code_128
+
+    Properties available in this configuration setting:
+     - status (enable/disable Code 128)
+     - fixed_symbol_length_status
+     - symbol_length
+     - ean128_status
+     - output_format
+     - application_record_separator_status
+     - application_record_separator_character
+     - application_record_brackets
+     - application_record_padding
     """
     K_CODE = b'K474'
     K_PATTERN = (
