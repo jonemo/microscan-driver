@@ -13,6 +13,27 @@ parser.add_argument(
     'device', type=str,
     help='Serial port device name where reader is connected')
 
+# for demo only
+import time
+from microscan.config import *
+
+changed_configs = [
+    UPC_EAN(upc_status=UPCStatus.Enabled),
+    Trigger(trigger_mode=TriggerMode.ContinuousReadOneOutput),
+    EndReadCycle(
+        end_read_cycle_mode=EndReadCycleMode.Timeout,
+        read_cycle_timeout=300,
+    ),
+    DecodesBeforeOutput(
+        number_before_output=5,
+        decodes_before_output_mode=DecodesBeforeOutputMode.Consecutive,
+    ),
+    LaserSetup(
+        laser_on_off_status=LaserOnOffStatus.Disabled,
+    ),
+]
+# end of for demo only
+
 
 def main():
     args = parser.parse_args()
@@ -21,6 +42,14 @@ def main():
 
     try:
         with MS3Driver(args.device) as driver:
+
+            # temporary, for demo only
+            for cfg in changed_configs:
+                configstr = cfg.to_config_string()
+                driver.port.write(configstr)
+                time.sleep(0.1)
+            # end of for demo only
+
             server.register_instance(driver, allow_dotted_names=True)
             server.register_introspection_functions()
             server.serve_forever()

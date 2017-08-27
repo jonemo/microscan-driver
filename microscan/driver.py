@@ -78,7 +78,7 @@ class MicroscanDriver:
             parity=parity,
             bytesize=bytesize,
             stopbits=stopbits,
-            timeout=1,
+            timeout=5,
             xonxoff=False,
             rtscts=False,
             dsrdtr=False,

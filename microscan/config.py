@@ -16,6 +16,12 @@ escaped is on page A-11 of the MS3 user manual.
 ASCII_CHAR = b'.|\^[A-Z\[\\\]\^_]'
 
 
+def from_encoded_ascii(encoded):
+    encoded = encoded.replace(b'^M', b'\r')
+    encoded = encoded.replace(b'^J', b'\n')
+    return encoded
+
+
 class MicroscanConfigException(Exception):
     """Parent class for all configuration related exceptions
     """
@@ -2053,8 +2059,8 @@ REGISTRY = {cls.K_CODE: cls for cls in [
     HostProtocol,
     HostRS422Status,
     RS232AuxiliaryPort,
-    Preamble,
-    Postamble,
+    # Preamble,
+    # Postamble,
     LRC,
     InterCharacterDelay,
     Multisymbol,
