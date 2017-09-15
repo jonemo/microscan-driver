@@ -1,6 +1,7 @@
 # microscan-driver
 
 [![Build Status](https://travis-ci.org/jonemo/microscan-driver.svg?branch=master)](https://travis-ci.org/jonemo/microscan-driver)
+[![PyPI version](https://badge.fury.io/py/microscan.svg)](https://badge.fury.io/py/microscan)
 
 Python driver for Microscan barcode readers
 
