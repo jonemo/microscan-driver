@@ -10,7 +10,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='microscan',
-    version='0.0.1',
+    version='0.0.2',
     packages=find_packages(where='src'),
     package_dir={"": "src"},
     install_requires=['pyserial'],
